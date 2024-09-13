@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres'
+    environment:
+      - 'POSTGRES_DB=configs'
+      - 'POSTGRES_USER=cnr-anac'
+      - 'POSTGRES_PASSWORD=secret.'
+    ports:
+      - '5432'

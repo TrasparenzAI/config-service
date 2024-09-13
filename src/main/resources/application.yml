@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: config-service
+  profiles:
+    active: jdbc
+
+flyway:
+  url: jdbc:postgres://localhost:5432/configs
+  user: "cnr-anac"
+  password: "secret"
+
+server:
+  port: 8888
+autoconfigure:
+  exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+jmx:
+  default_domain: cloud.config.server
+management:
+  endpoints:
+    web:
+      base-path: /admin
