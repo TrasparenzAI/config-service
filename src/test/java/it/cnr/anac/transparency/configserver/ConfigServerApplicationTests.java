@@ -14,10 +14,16 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.configserver.data;
+package it.cnr.anac.transparency.configserver;
 
-import org.springframework.data.repository.ListCrudRepository;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-public interface PropertyRepository extends ListCrudRepository<Property, Long>{
-  //Empty interface
+@SpringBootTest
+class ConfigServerApplicationTests {
+
+  @Test
+  void contextLoads() {
+  }
+
 }

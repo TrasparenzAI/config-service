@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
+		<jib.maven-plugin.version>3.4.3</jib.maven-plugin.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -111,10 +112,6 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<excludes>
 						<exclude>
@@ -137,6 +134,18 @@
 							<version>${lombok.version}</version>
 						</path>
 					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>${jib.maven-plugin.version}</version>
+				<configuration>
+					<from><image>eclipse-temurin:21-jre@sha256:6dd753778dec1bae7c1c2c948231e9d0b335b213dd85b575f6f0e72b326d7ed4</image></from>
+					<container>
+						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
+						<mainClass>it.cnr.anac.transparency.configserver.ConfigServiceApplication</mainClass>
+					</container>
 				</configuration>
 			</plugin>
 		</plugins>
