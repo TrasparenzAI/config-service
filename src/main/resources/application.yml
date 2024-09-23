@@ -3,6 +3,14 @@ spring:
     name: config-service
   profiles:
     active: jdbc
+  cloud:
+    config:
+      server:
+        prefix: /config
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
 flyway:
   url: jdbc:postgres://localhost:5432/configs
@@ -13,6 +21,7 @@ server:
   port: 8888
 autoconfigure:
   exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
 jmx:
   default_domain: cloud.config.server
 management:
