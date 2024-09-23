@@ -49,15 +49,15 @@ public class Property implements Serializable {
   @Version
   private Integer version;
 
-  @Column(name = "APPLICATION")
   private String application;
-  @Column(name = "PROFILE")
+
   private String profile;
-  @Column(name = "LABEL")
+
   private String label;
-  @Column(name = "KEY")
+
+  @Column(name = "`KEY`")
   private String key;
-  @Column(name = "VALUE")
+  @Column(name = "`VALUE`")
   private String value;
 
 }
