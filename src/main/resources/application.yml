@@ -7,6 +7,8 @@ spring:
     config:
       server:
         prefix: /config
+        jdbc:
+          sql: SELECT "KEY", "VALUE" from PROPERTIES where APPLICATION=? and PROFILE=? and (LABEL=? OR LABEL is null)
   jpa:
     hibernate:
       naming:
