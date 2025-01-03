@@ -73,7 +73,7 @@ Collegarsi a http://localhost:8888/properties per visualizzare le properietà pr
 ## Backups
 
 Il servizio mantiene le informazioni relative alla configurazione nel db postgres, quindi è opportuno fare il backup
-del database a scadenza regolare. Nel repsitory è presente un file di esempio [backups.sh](https://github.com/cnr-anac/config-service/blob/main/backups.sh) per effettuare i backup.
+del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/cnr-anac/config-service/blob/main/backups.sh) per effettuare i backup.
 
 All'interno dello script backups.sh è necessario impostare il corretto path dove si trova il docker-compose.yml del progetto, tramite la
 variabile `SERVICE_DIR`.
