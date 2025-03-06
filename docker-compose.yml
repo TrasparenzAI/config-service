@@ -20,6 +20,15 @@ services:
     - spring.datasource.url=jdbc:postgresql://${DB_HOST}:${DB_PORT:-5432}/${DB_NAME}
     - spring.datasource.username=${DB_USER}
     - spring.datasource.password=${DB_PASSWORD}
+    # Per l'accesso alla configurazione Spring Cloud Config disponibile al path /config
+    # si utilizza la Basic Auth, queste credenziali devono essere fornite ai client che utilizzano
+    # il config-service
+    - spring.security.user.name=${SECURITY_USER_NAME}
+    - spring.security.user.password=${SECURITY_USER_PASSWORD}
+    # Questi due parametri controllano l'IDP OAuth usato per l'autenticazione conJWT degli 
+    # endopoint REST di aggiornamento della configurazione
+    - spring.security.oauth2.resourceserver.jwt.issuer-uri=${JWT_ISSUER_URI}
+    - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=${JWT_JWK_SET_URI}
 
   postgres:
     image: 'postgres:17'
