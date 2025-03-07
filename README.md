@@ -46,8 +46,8 @@ specificando nella propria configurazione tre parametri tipo:
 
 ```
 spring.config.import=optional:configserver:http://@localhost:8888/config
-spring.security.user.name=config-service-user
-spring.security.user.password=PASSWORD_DA_IMPOSTARE_E_CONDIVIDERE_CON_I_CLIENT
+spring.cloud.config.username=config-service-user
+spring.cloud.config.password=PASSWORD_DA_IMPOSTARE_E_CONDIVIDERE_CON_I_CLIENT
 ```
 
 Dove naturalmente va impostato il corretto URL a cui risponde questo servizio.
