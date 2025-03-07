@@ -5,9 +5,9 @@ DELETE FROM public.properties;
 --
 
 COPY public.properties (id, version, application, profile, label, "KEY", "VALUE") FROM stdin;
-7	10	task-scheduler-service	default	\N	workflow.id.preserve	5e230eee-d1e8-4690-88c2-0b3583e7a3d1,5131b56c-f2e1-4d6e-abd7-b1d26717834e
 3	19	task-scheduler-service	default	\N	workflow.cron.body	{"name":"crawler_amministrazione_trasparente","correlationId":"crawler_amministrazione_trasparente","version":1,"input":{"page_size":2000,"codice_categoria":"","codice_ipa":"","id_ipa_from":0,"parent_workflow_id":"","execute_child":true,"crawler_save_object":false,"crawler_save_screenshot":false,"rule_name":"amministrazione-trasparente","root_rule":"AT_TO-BE_23-12-2024","connection_timeout":30000,"read_timeout":30000,"connection_timeout_max":60000,"read_timeout_max":60000,"crawler_child_type":"START_WORKFLOW","result_base_url":"https://dica33.ba.cnr.it/result-service","crawler_uri":"http://150.145.95.77:8080/crawl","rule_base_url":"https://monitorai.ba.cnr.it/rule-service","public_company_base_url":"https://dica33.ba.cnr.it/public-sites-service","result_aggregator_base_url":"https://dica33.ba.cnr.it/result-aggregator-service"}}
 18	15	task-scheduler-service	default	\N	color	{"status_200":"#1ea233","status_202":"#6ab357","status_400":"#e31b19","status_404":"#e31b19","status_407":"#ea670c","status_408":"#ea670c","status_500":"#cc9966","status_501":"#ffe000"}
+7	11	task-scheduler-service	default	\N	workflow.id.preserve	5e230eee-d1e8-4690-88c2-0b3583e7a3d1,b4efa1a2-95be-4f25-bc94-c760f5b200aa
 1	26	task-scheduler-service	default	\N	workflow.cron.expression	0 19 ? * WED,SAT
 17	0	task-scheduler-service	default	\N	workflow.cron.deleteExpression	0 8 ? * MON,TUE,THU,FRI
 6	6	task-scheduler-service	default	\N	workflow.number.preserve	9

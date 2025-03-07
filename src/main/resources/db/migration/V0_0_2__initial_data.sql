@@ -1,3 +1,5 @@
+DELETE FROM public.properties;
+
 --
 -- Data for Name: properties; Type: TABLE DATA; Schema: public; Owner: cnr-anac
 --
