@@ -59,7 +59,7 @@ L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.c
 ### Sicurezza
 
 L'accesso in lettura alla configurazione di tipo _Spring Cloud Config_ disponibile al path */config* 
-è protetto con autenticazione di tipo *Basic Auth*, i microservizi che vogliono utilizzare questo path per ottenere la configurazione devono utilizzare l'utente e la password sepcificati tramite i parametri *spring.security.user.name* e *spring.security.user.password* , i quali possono essere specificati nel *docker-compose.yml* come nell'esempio seguente:
+è protetto con autenticazione di tipo *Basic Auth*, i microservizi che vogliono utilizzare questo path per ottenere la configurazione devono utilizzare l'utente e la password specificati tramite i parametri *spring.security.user.name* e *spring.security.user.password* , i quali possono essere indicati nel *docker-compose.yml* come nell'esempio seguente:
 
 ```
     - spring.security.user.name=config-service-user
