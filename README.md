@@ -91,7 +91,7 @@ Accertati di aver installato docker e il plugin di docker `compose` dove vuoi in
 esegui il comando successivo per un setup di esempio.
 
 ```
-curl -fsSL https://raw.githubusercontent.com/cnr-anac/config-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
+curl -fsSL https://raw.githubusercontent.com/trasparenzai/config-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
 ```
 
 Utilizzando lo script *first_setup.sh* viene generata una password per l'accesso allo Spring Cloud Config
@@ -116,7 +116,7 @@ http GET :8888/properties "Authorization: Bearer $TOKEN"
 ## Backups
 
 Il servizio mantiene le informazioni relative alla configurazione nel db postgres, quindi è opportuno fare il backup
-del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/cnr-anac/config-service/blob/main/backups.sh) per effettuare i backup.
+del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/trasparenzai/config-service/blob/main/backups.sh) per effettuare i backup.
 
 All'interno dello script backups.sh è necessario impostare il corretto path dove si trova il docker-compose.yml del progetto, tramite la variabile `SERVICE_DIR`.
 
@@ -130,4 +130,4 @@ E' possibile contribuire a questo progetto utilizzando le modalità standard del
 
 Config Service è concesso in licenza GNU AFFERO GENERAL PUBLIC LICENSE, come si trova nel file [LICENSE][l].
 
-[l]: https://github.com/cnr-anac/config-service/blob/master/LICENSE
+[l]: https://github.com/trasparenzai/config-service/blob/master/LICENSE

@@ -5,7 +5,7 @@
 
 services:
   config-service:
-    image: ghcr.io/cnr-anac/config-service:latest
+    image: ghcr.io/trasparenzai/config-service:latest
     container_name: config-service
     restart: unless-stopped
     links:
