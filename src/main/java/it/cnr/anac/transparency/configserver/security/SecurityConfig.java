@@ -16,8 +16,8 @@
  */
 package it.cnr.anac.transparency.configserver.security;
 
-import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -31,6 +31,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import javax.inject.Inject;
+
 /**
  * Configura una doppia autenticazione, quella Basic Auth utilizzata dal client
  * Spring Cloud Config e quella OAuth2 per l'accesso alle API REST utilizzate
@@ -42,44 +44,60 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
+@EnableConfigurationProperties(Oauth2Properties.class)
 public class SecurityConfig {
+    private final Oauth2Properties oauth2Properties;
 
-  @Inject
-  MyBasicAuthenticationEntryPoint authenticationEntryPoint;
+    @Inject
+    MyBasicAuthenticationEntryPoint authenticationEntryPoint;
 
-  @Inject
-  private CustomAuthenticationProvider authProvider;
-  
-  @Inject
-  public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
-    auth.authenticationProvider(authProvider);
-  }
-  
+    @Inject
+    private CustomAuthenticationProvider authProvider;
 
-  @Bean
-  public SecurityFilterChain configure(HttpSecurity http) throws Exception {
-    log.info("Enabling security config");
-    http.httpBasic(Customizer.withDefaults());
+    public SecurityConfig(Oauth2Properties oauth2Properties) {
+        this.oauth2Properties = oauth2Properties;
+    }
 
-    return http
-        .csrf(AbstractHttpConfigurer::disable)
-        .sessionManagement( config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(authz -> authz
-            .requestMatchers(HttpMethod.OPTIONS).permitAll()
-            .requestMatchers(HttpMethod.GET, "/actuator/*").permitAll()
-            .requestMatchers(HttpMethod.GET,"/v3/api-docs/**","/swagger-ui/**").permitAll()
-            .requestMatchers(HttpMethod.POST).hasAnyRole("ADMIN", "SUPERUSER")
-            .requestMatchers(HttpMethod.PUT).hasAnyRole("ADMIN", "SUPERUSER")
-            .requestMatchers(HttpMethod.DELETE).hasAnyRole("ADMIN", "SUPERUSER")
-            .anyRequest().authenticated())
-        .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
-          httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
-            jwtConfigurer.jwtAuthenticationConverter(
-                new RolesClaimConverter(new JwtGrantedAuthoritiesConverter())
-                );
-          });
-          
-        })
-        .build();
-  }
+
+    @Inject
+    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(authProvider);
+    }
+
+
+    @Bean
+    public SecurityFilterChain configure(HttpSecurity http) throws Exception {
+        log.info("Enabling security config");
+        http.httpBasic(Customizer.withDefaults());
+        if (oauth2Properties.isEnabled()) {
+            http.authorizeHttpRequests(expressionInterceptUrlRegistry -> {
+                expressionInterceptUrlRegistry
+                        .requestMatchers(HttpMethod.OPTIONS).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/actuator/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll();
+                oauth2Properties
+                        .getRoles()
+                        .forEach((key, value) ->
+                                expressionInterceptUrlRegistry
+                                        .requestMatchers(HttpMethod.valueOf(key)).hasAnyRole(value)
+                        );
+                expressionInterceptUrlRegistry
+                        .anyRequest()
+                        .permitAll();
+            });
+        }
+
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+                    httpSecurityOAuth2ResourceServerConfigurer.jwt(jwtConfigurer -> {
+                        jwtConfigurer.jwtAuthenticationConverter(
+                                new RolesClaimConverter(new JwtGrantedAuthoritiesConverter())
+                        );
+                    });
+
+                })
+                .build();
+    }
 }
