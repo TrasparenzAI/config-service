@@ -38,7 +38,10 @@ jmx:
 management:
   endpoints:
     web:
-      base-path: /admin
+      exposure:
+        include: health,info,refresh
+    info:
+      enabled: true
 
 security:
   oauth2:
