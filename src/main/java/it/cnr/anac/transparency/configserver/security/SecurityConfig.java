@@ -21,7 +21,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManagers;
@@ -81,15 +81,16 @@ public class SecurityConfig {
 
     /**
      * Consente l'accesso se la richiesta contiene un solo parametro key con una delle chiavi
-     * pubbliche, altrimenti richiede l'autenticazione.
+     * pubbliche, altrimenti richiede uno dei ruoli per la lettura delle proprietà.
      */
-    private AuthorizationManager<RequestAuthorizationContext> publicPropertyKeyOrAuthenticated() {
+    private AuthorizationManager<RequestAuthorizationContext> publicPropertyKeyOrReadRole() {
         AuthorizationManager<RequestAuthorizationContext> publicPropertyKey = (authentication, context) -> {
             String[] keys = context.getRequest().getParameterValues("key");
             return new AuthorizationDecision(keys != null && keys.length == 1
                     && oauth2Properties.getPublicPropertyKeys().contains(keys[0]));
         };
-        return AuthorizationManagers.anyOf(publicPropertyKey, AuthenticatedAuthorizationManager.authenticated());
+        return AuthorizationManagers.anyOf(publicPropertyKey,
+                AuthorityAuthorizationManager.hasAnyRole(oauth2Properties.getPropertiesReadRoles()));
     }
 
     @Bean
@@ -102,18 +103,19 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, PROPERTIES_SEARCH_BY_KEY).access(publicPropertyKeyOrAuthenticated());
+                        .requestMatchers(HttpMethod.GET, PROPERTIES_SEARCH_BY_KEY).access(publicPropertyKeyOrReadRole());
                 oauth2Properties
                         .getRoles()
                         .forEach((key, value) ->
                                 expressionInterceptUrlRegistry
                                         .requestMatchers(HttpMethod.valueOf(key)).hasAnyRole(value)
                         );
-                // La configurazione Spring Cloud Config, la lettura delle proprietà e gli altri
-                // endpoint dell'actuator sono accessibili solo da utenti autenticati (Basic Auth o JWT)
+                // La configurazione Spring Cloud Config e gli altri endpoint dell'actuator sono
+                // accessibili solo da utenti autenticati (Basic Auth o JWT)
                 expressionInterceptUrlRegistry
                         .requestMatchers("/config/**", "/actuator/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/properties", "/properties/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/properties", "/properties/**")
+                        .hasAnyRole(oauth2Properties.getPropertiesReadRoles())
                         .anyRequest()
                         .permitAll();
             });

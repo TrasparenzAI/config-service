@@ -35,6 +35,10 @@ public class Oauth2Properties {
     private Map<String, String[]> roles;
     private boolean enabled;
     /**
+     * Ruoli necessari per la lettura delle proprietà al path /properties.
+     */
+    private String[] propertiesReadRoles = new String[0];
+    /**
      * Chiavi delle proprietà leggibili senza autenticazione tramite i metodi di ricerca
      * per chiave del path /properties/search.
      */

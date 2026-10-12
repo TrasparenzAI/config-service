@@ -97,9 +97,23 @@ class SecurityConfigTests {
   }
 
   @Test
-  void getPropertiesAuthenticatedIsAllowed() throws Exception {
-    mockMvc.perform(get("/properties").with(jwt())).andExpect(status().isOk());
-    mockMvc.perform(get(PROPERTY_PATH).with(jwt())).andExpect(status().isOk());
+  void getPropertiesWithoutReadRoleIsForbidden() throws Exception {
+    mockMvc.perform(get("/properties").with(jwt())).andExpect(status().isForbidden());
+    mockMvc.perform(get(PROPERTY_PATH)
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+        .andExpect(status().isForbidden());
+    mockMvc.perform(get("/properties").with(httpBasic(username, password)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void getPropertiesWithReadRoleIsAllowed() throws Exception {
+    mockMvc.perform(get("/properties")
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_SUPERUSER"))))
+        .andExpect(status().isOk());
+    mockMvc.perform(get(PROPERTY_PATH)
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
+        .andExpect(status().isOk());
   }
 
   @Test
@@ -127,8 +141,16 @@ class SecurityConfigTests {
   }
 
   @Test
-  void searchByNotPublicKeyAuthenticatedIsAllowed() throws Exception {
-    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.url").with(jwt()))
+  void searchByNotPublicKeyWithoutReadRoleIsForbidden() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.url")
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void searchByNotPublicKeyWithReadRoleIsAllowed() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.url")
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
         .andExpect(status().isOk());
   }
 

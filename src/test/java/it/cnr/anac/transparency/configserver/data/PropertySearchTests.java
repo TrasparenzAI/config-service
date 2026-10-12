@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -66,7 +67,7 @@ class PropertySearchTests {
             .param("application", "task-scheduler-service")
             .param("profile", "default")
             .param("key", "workflow.cron.url")
-            .with(jwt()))
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$._embedded.properties", hasSize(1)))
         .andExpect(jsonPath("$._embedded.properties[0].id", is(2)))

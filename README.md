@@ -79,11 +79,14 @@ OAuth con Bearer Token.
 Per gli endpoint accessibili con PUT/POST/PATCH/DELETE è necessario oltre che essere autenticati
 che il token OAuth contenga un role ADMIN o SUPERUSER (su Keycloak i ruoli di realm devono essere
 definiti con il prefisso ROLE_, per esempio ROLE_ADMIN).
-Per l'accesso in HTTP GET al path _/properties_ è necessario essere autenticati, ad eccezione dei
-metodi di ricerca per chiave (vedi sotto) per le chiavi indicate nel parametro
-*security.oauth2.public-property-keys*, utilizzate dalle pagine pubbliche della UI:
+Per l'accesso in HTTP GET al path _/properties_ è necessario che il token OAuth contenga uno dei
+ruoli indicati nel parametro *security.oauth2.properties-read-roles* (default ADMIN e SUPERUSER).
+Fanno eccezione i metodi di ricerca per chiave (vedi sotto) per le chiavi indicate nel parametro
+*security.oauth2.public-property-keys*, utilizzate dalle pagine pubbliche della UI, accessibili
+anche senza autenticazione:
 
 ```
+    - security.oauth2.properties-read-roles=ADMIN,SUPERUSER
     - security.oauth2.public-property-keys=color,slice,menu,jsonrules,workflow.cron.body
 ```
 

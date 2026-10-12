@@ -51,5 +51,7 @@ security:
       PUT: ADMIN,SUPERUSER
       PATCH: ADMIN,SUPERUSER
       DELETE: ADMIN,SUPERUSER
+    # Ruoli necessari per la lettura delle proprietà
+    properties-read-roles: ADMIN,SUPERUSER
     # Proprietà utilizzate dalle pagine pubbliche della UI
     public-property-keys: color,slice,menu,jsonrules,workflow.cron.body
