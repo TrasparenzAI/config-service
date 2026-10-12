@@ -79,8 +79,26 @@ OAuth con Bearer Token.
 Per gli endpoint accessibili con PUT/POST/PATCH/DELETE è necessario oltre che essere autenticati
 che il token OAuth contenga un role ADMIN o SUPERUSER (su Keycloak i ruoli di realm devono essere
 definiti con il prefisso ROLE_, per esempio ROLE_ADMIN).
-L'accesso in HTTP GET al path _/properties_ è attualmente consentito anche senza autenticazione
-perché utilizzato dalle pagine pubbliche della UI.
+Per l'accesso in HTTP GET al path _/properties_ è necessario essere autenticati, ad eccezione dei
+metodi di ricerca per chiave (vedi sotto) per le chiavi indicate nel parametro
+*security.oauth2.public-property-keys*, utilizzate dalle pagine pubbliche della UI:
+
+```
+    - security.oauth2.public-property-keys=color,slice,menu,jsonrules,workflow.cron.body
+```
+
+### Ricerca delle proprietà
+
+Oltre alla lista completa delle proprietà è possibile ricercare le proprietà per chiave:
+
+```
+http GET :8888/properties/search/findByKey key==color
+http GET :8888/properties/search/findByApplicationAndProfileAndKey \
+  application==task-scheduler-service profile==default key==workflow.cron.url "Authorization: Bearer $TOKEN"
+```
+
+Entrambi i metodi restituiscono una lista, perché la stessa chiave può essere presente con label
+diverse o, nel caso di _findByKey_, in più applicazioni.
 
 Degli endpoint dell'actuator sono pubblici solo _/actuator/health_ e _/actuator/info_, gli altri
 richiedono l'autenticazione, il _POST_ su _/actuator/refresh_ richiede un role ADMIN o SUPERUSER.

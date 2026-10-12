@@ -16,8 +16,27 @@
  */
 package it.cnr.anac.transparency.configserver.data;
 
+import java.util.List;
 import org.springframework.data.repository.ListCrudRepository;
+import org.springframework.data.repository.query.Param;
 
+/**
+ * Repository delle proprietà, esposto tramite Spring Data REST al path /properties.
+ * I metodi di ricerca sono disponibili al path /properties/search.
+ */
 public interface PropertyRepository extends ListCrudRepository<Property, Long>{
-  //Empty interface
+
+  /**
+   * Proprietà con la chiave indicata, per tutte le applicazioni e i profili.
+   */
+  List<Property> findByKey(@Param("key") String key);
+
+  /**
+   * Proprietà di una applicazione e di un profilo con la chiave indicata.
+   * Possono essere presenti più proprietà con la stessa chiave e label diverse.
+   */
+  List<Property> findByApplicationAndProfileAndKey(
+      @Param("application") String application,
+      @Param("profile") String profile,
+      @Param("key") String key);
 }

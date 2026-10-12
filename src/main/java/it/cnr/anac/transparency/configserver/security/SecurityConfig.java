@@ -21,6 +21,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationManagers;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -30,6 +34,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 
 import javax.inject.Inject;
 
@@ -46,6 +51,15 @@ import javax.inject.Inject;
 @Configuration
 @EnableConfigurationProperties(Oauth2Properties.class)
 public class SecurityConfig {
+    /**
+     * Metodi di ricerca per chiave di Spring Data REST, utilizzabili senza autenticazione
+     * per le chiavi indicate in security.oauth2.public-property-keys.
+     */
+    private static final String[] PROPERTIES_SEARCH_BY_KEY = {
+            "/properties/search/findByKey",
+            "/properties/search/findByApplicationAndProfileAndKey"
+    };
+
     private final Oauth2Properties oauth2Properties;
 
     @Inject
@@ -65,6 +79,19 @@ public class SecurityConfig {
     }
 
 
+    /**
+     * Consente l'accesso se la richiesta contiene un solo parametro key con una delle chiavi
+     * pubbliche, altrimenti richiede l'autenticazione.
+     */
+    private AuthorizationManager<RequestAuthorizationContext> publicPropertyKeyOrAuthenticated() {
+        AuthorizationManager<RequestAuthorizationContext> publicPropertyKey = (authentication, context) -> {
+            String[] keys = context.getRequest().getParameterValues("key");
+            return new AuthorizationDecision(keys != null && keys.length == 1
+                    && oauth2Properties.getPublicPropertyKeys().contains(keys[0]));
+        };
+        return AuthorizationManagers.anyOf(publicPropertyKey, AuthenticatedAuthorizationManager.authenticated());
+    }
+
     @Bean
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
         log.info("Enabling security config");
@@ -74,17 +101,19 @@ public class SecurityConfig {
                 expressionInterceptUrlRegistry
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll();
+                        .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, PROPERTIES_SEARCH_BY_KEY).access(publicPropertyKeyOrAuthenticated());
                 oauth2Properties
                         .getRoles()
                         .forEach((key, value) ->
                                 expressionInterceptUrlRegistry
                                         .requestMatchers(HttpMethod.valueOf(key)).hasAnyRole(value)
                         );
-                // La configurazione Spring Cloud Config e gli altri endpoint dell'actuator
-                // sono accessibili solo da utenti autenticati (Basic Auth o JWT)
+                // La configurazione Spring Cloud Config, la lettura delle proprietà e gli altri
+                // endpoint dell'actuator sono accessibili solo da utenti autenticati (Basic Auth o JWT)
                 expressionInterceptUrlRegistry
                         .requestMatchers("/config/**", "/actuator/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/properties", "/properties/**").authenticated()
                         .anyRequest()
                         .permitAll();
             });
