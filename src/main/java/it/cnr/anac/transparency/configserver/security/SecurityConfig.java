@@ -102,8 +102,13 @@ public class SecurityConfig {
                 expressionInterceptUrlRegistry
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, PROPERTIES_SEARCH_BY_KEY).access(publicPropertyKeyOrReadRole());
+                        .requestMatchers(HttpMethod.GET, "/api-docs/**", "/swagger-ui/**").permitAll();
+                if (oauth2Properties.isPropertiesReadProtected()) {
+                    expressionInterceptUrlRegistry
+                            .requestMatchers(HttpMethod.GET, PROPERTIES_SEARCH_BY_KEY).access(publicPropertyKeyOrReadRole())
+                            .requestMatchers(HttpMethod.GET, "/properties", "/properties/**")
+                            .hasAnyRole(oauth2Properties.getPropertiesReadRoles());
+                }
                 oauth2Properties
                         .getRoles()
                         .forEach((key, value) ->
@@ -114,8 +119,6 @@ public class SecurityConfig {
                 // accessibili solo da utenti autenticati (Basic Auth o JWT)
                 expressionInterceptUrlRegistry
                         .requestMatchers("/config/**", "/actuator/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/properties", "/properties/**")
-                        .hasAnyRole(oauth2Properties.getPropertiesReadRoles())
                         .anyRequest()
                         .permitAll();
             });

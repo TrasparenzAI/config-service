@@ -75,6 +75,15 @@ class PropertySearchTests {
   }
 
   @Test
+  void findWorkflowCronRootRule() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.root_rule"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.properties", hasSize(1)))
+        .andExpect(jsonPath("$._embedded.properties[0].application", is("task-scheduler-service")))
+        .andExpect(jsonPath("$._embedded.properties[0].value", is("AT_TO-BE_23-12-2024")));
+  }
+
+  @Test
   void findByApplicationAndProfileAndKeyWithoutResults() throws Exception {
     mockMvc.perform(get("/properties/search/findByApplicationAndProfileAndKey")
             .param("application", "rule-service")

@@ -38,12 +38,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Verifica delle regole di autorizzazione definite in {@link SecurityConfig}.
+ * Verifica delle regole di autorizzazione definite in {@link SecurityConfig},
+ * con la lettura delle proprietà protetta.
  *
  * @author Cristian Lucchesi
  */
 @Testcontainers
-@SpringBootTest
+@SpringBootTest(properties = "security.oauth2.properties-read-protected=true")
 @AutoConfigureMockMvc
 class SecurityConfigTests {
 
