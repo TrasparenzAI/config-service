@@ -38,12 +38,13 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 /**
- * Verifica delle regole di autorizzazione definite in {@link SecurityConfig}.
+ * Verifica delle regole di autorizzazione definite in {@link SecurityConfig},
+ * con la lettura delle proprietà protetta.
  *
  * @author Cristian Lucchesi
  */
 @Testcontainers
-@SpringBootTest
+@SpringBootTest(properties = "security.oauth2.properties-read-protected=true")
 @AutoConfigureMockMvc
 class SecurityConfigTests {
 
@@ -90,8 +91,68 @@ class SecurityConfigTests {
   }
 
   @Test
-  void getPropertiesAnonymousIsAllowed() throws Exception {
-    mockMvc.perform(get("/properties")).andExpect(status().isOk());
+  void getPropertiesAnonymousIsUnauthorized() throws Exception {
+    mockMvc.perform(get("/properties")).andExpect(status().isUnauthorized());
+    mockMvc.perform(get(PROPERTY_PATH)).andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/properties").param("key", "color")).andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void getPropertiesWithoutReadRoleIsForbidden() throws Exception {
+    mockMvc.perform(get("/properties").with(jwt())).andExpect(status().isForbidden());
+    mockMvc.perform(get(PROPERTY_PATH)
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+        .andExpect(status().isForbidden());
+    mockMvc.perform(get("/properties").with(httpBasic(username, password)))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void getPropertiesWithReadRoleIsAllowed() throws Exception {
+    mockMvc.perform(get("/properties")
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_SUPERUSER"))))
+        .andExpect(status().isOk());
+    mockMvc.perform(get(PROPERTY_PATH)
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void searchByPublicKeyAnonymousIsAllowed() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "color"))
+        .andExpect(status().isOk());
+    mockMvc.perform(get("/properties/search/findByApplicationAndProfileAndKey")
+            .param("application", "task-scheduler-service")
+            .param("profile", "default")
+            .param("key", "color"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void searchByNotPublicKeyAnonymousIsUnauthorized() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.url"))
+        .andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/properties/search/findByKey")
+            .param("key", "color")
+            .param("key", "workflow.cron.url"))
+        .andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/properties/search/findByKey")).andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/properties/search").param("key", "color"))
+        .andExpect(status().isUnauthorized());
+  }
+
+  @Test
+  void searchByNotPublicKeyWithoutReadRoleIsForbidden() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.url")
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_USER"))))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void searchByNotPublicKeyWithReadRoleIsAllowed() throws Exception {
+    mockMvc.perform(get("/properties/search/findByKey").param("key", "workflow.cron.url")
+            .with(jwt().authorities(new SimpleGrantedAuthority("ROLE_ADMIN"))))
+        .andExpect(status().isOk());
   }
 
   @Test

@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -32,5 +34,20 @@ public class Oauth2Properties {
      */
     private Map<String, String[]> roles;
     private boolean enabled;
+    /**
+     * Se true la lettura delle proprietà al path /properties è limitata ai ruoli indicati in
+     * propertiesReadRoles, ad eccezione delle chiavi pubbliche (publicPropertyKeys).
+     * Se false la lettura delle proprietà è libera.
+     */
+    private boolean propertiesReadProtected = false;
+    /**
+     * Ruoli necessari per la lettura delle proprietà al path /properties.
+     */
+    private String[] propertiesReadRoles = new String[0];
+    /**
+     * Chiavi delle proprietà leggibili senza autenticazione tramite i metodi di ricerca
+     * per chiave del path /properties/search.
+     */
+    private List<String> publicPropertyKeys = new ArrayList<>();
 
 }
