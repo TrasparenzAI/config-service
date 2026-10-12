@@ -76,9 +76,14 @@ OAuth con Bearer Token.
     - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://dica33.ba.cnr.it/keycloak/realms/trasparenzai/protocol/openid-connect/certs
 ```
 
-Per l'accesso in HTTP GET all'API è sufficiente essere autenticati, per gli endpoint accessibili
-con PUT/POST/DELETE è necessario oltre che essere autenticati che il token OAuth contenga un 
-role ADMIN o SUPERUSER.
+Per gli endpoint accessibili con PUT/POST/PATCH/DELETE è necessario oltre che essere autenticati
+che il token OAuth contenga un role ADMIN o SUPERUSER (su Keycloak i ruoli di realm devono essere
+definiti con il prefisso ROLE_, per esempio ROLE_ADMIN).
+L'accesso in HTTP GET al path _/properties_ è attualmente consentito anche senza autenticazione
+perché utilizzato dalle pagine pubbliche della UI.
+
+Degli endpoint dell'actuator sono pubblici solo _/actuator/health_ e _/actuator/info_, gli altri
+richiedono l'autenticazione, il _POST_ su _/actuator/refresh_ richiede un role ADMIN o SUPERUSER.
 
 # <img src="https://www.docker.com/wp-content/uploads/2021/10/Moby-logo-sm.png" width=80> Startup
 
